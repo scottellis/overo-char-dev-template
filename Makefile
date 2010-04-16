@@ -1,4 +1,4 @@
-# Makefile for myspy kernel module
+# Makefile for the template kernel module
 
 DRIVERNAME=template
 
