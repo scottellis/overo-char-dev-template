@@ -8,7 +8,7 @@ Rename template.c with <your-driver-name>.c
 Source the source-me.txt file. You might have to change the KERNELDIR
 variable to whatever kernel you are running.
 
-The assumption is you are working on Gumstix overo's using the OE 
-cross-build environment. But with small tweaks works for any Linux
+The assumption is you are working on Gumstix Overos using the OE 
+cross-build environment, but with small tweaks works for any Linux
 system.
 
