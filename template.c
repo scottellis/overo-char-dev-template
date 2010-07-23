@@ -12,6 +12,7 @@
 #include <linux/string.h>
 #include <linux/kernel.h>
 #include <linux/device.h>
+#include <linux/slab.h>
 
 #define USER_BUFF_SIZE 128
 
