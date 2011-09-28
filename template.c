@@ -79,7 +79,7 @@ static ssize_t template_read(struct file *filp, char __user *buff,
 	if (down_interruptible(&template_dev.sem)) 
 		return -ERESTARTSYS;
 
-	strcpy(template_dev.user_buff, "template driver data\n");
+	strcpy(template_dev.user_buff, "template driver data goes here\n");
 
 	len = strlen(template_dev.user_buff);
 
@@ -112,9 +112,7 @@ static int template_open(struct inode *inode, struct file *filp)
 		template_dev.user_buff = kmalloc(USER_BUFF_SIZE, GFP_KERNEL);
 
 		if (!template_dev.user_buff) {
-			printk(KERN_ALERT 
-				"template_open: user_buff alloc failed\n");
-
+			printk(KERN_ALERT "template_open: user_buff alloc failed\n");
 			status = -ENOMEM;
 		}
 	}
@@ -138,12 +136,9 @@ static int __init template_init_cdev(void)
 	template_dev.devt = MKDEV(0, 0);
 
 	error = alloc_chrdev_region(&template_dev.devt, 0, 1, "template");
-	if (error < 0) {
-		printk(KERN_ALERT 
-			"alloc_chrdev_region() failed: error = %d \n", 
-			error);
-		
-		return -1;
+	if (error) {
+		printk(KERN_ALERT "alloc_chrdev_region() failed: %d\n", error);
+		return error;
 	}
 
 	cdev_init(&template_dev.cdev, &template_fops);
@@ -151,9 +146,9 @@ static int __init template_init_cdev(void)
 
 	error = cdev_add(&template_dev.cdev, template_dev.devt, 1);
 	if (error) {
-		printk(KERN_ALERT "cdev_add() failed: error = %d\n", error);
+		printk(KERN_ALERT "cdev_add() failed: %d\n", error);
 		unregister_chrdev_region(template_dev.devt, 1);
-		return -1;
+		return error;
 	}	
 
 	return 0;
@@ -161,17 +156,21 @@ static int __init template_init_cdev(void)
 
 static int __init template_init_class(void)
 {
+	struct device *device;
+
 	template_dev.class = class_create(THIS_MODULE, "template");
 
-	if (!template_dev.class) {
+	if (IS_ERR(template_dev.class)) {
 		printk(KERN_ALERT "class_create(template) failed\n");
-		return -1;
+		return PTR_ERR(template_dev.class);
 	}
 
-	if (!device_create(template_dev.class, NULL, template_dev.devt, 
-				NULL, "template")) {
+	device = device_create(template_dev.class, NULL, template_dev.devt, NULL, 
+							"template");
+
+	if (IS_ERR(device)) {
 		class_destroy(template_dev.class);
-		return -1;
+		return PTR_ERR(device);
 	}
 
 	return 0;
